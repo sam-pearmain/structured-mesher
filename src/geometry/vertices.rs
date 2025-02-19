@@ -1,7 +1,5 @@
 use std::marker::PhantomData;
 
-use num_traits::Float;
-
 use super::points::{Dimensioned, Point2D, Point3D};
 use super::{points::{Dimensions, Point}, vertex::Vertex};
 
@@ -60,53 +58,41 @@ impl<P: Point> VertexCollectionBuilder<P> {
     }
 }
 
-impl<F: Float> VertexCollectionBuilder<Point2D<F>> {
-    pub fn new_2d(nx: usize, ny: usize) -> Self {
+impl VertexCollectionBuilder<Point2D<f32>> {
+    pub fn new_2d_f32(nx: usize, ny: usize) -> Self {
         VertexCollectionBuilder {
             dimensions: Dimensions::Two { nx, ny },
             write_order: None,
             _phantom: PhantomData,
         }
     }
+}
 
-    pub fn set_f32(self) -> VertexCollectionBuilder<Point2D<f32>> {
+impl VertexCollectionBuilder<Point2D<f64>> {
+    pub fn new_2d_f64(nx: usize, ny: usize) -> Self {
         VertexCollectionBuilder {
-            dimensions: self.dimensions,
-            write_order: self.write_order,
-            _phantom: PhantomData,
-        }
-    }
-
-    pub fn set_f64(self) -> VertexCollectionBuilder<Point2D<f64>> {
-        VertexCollectionBuilder {
-            dimensions: self.dimensions,
-            write_order: self.write_order,
+            dimensions: Dimensions::Two { nx, ny },
+            write_order: None,
             _phantom: PhantomData,
         }
     }
 }
 
-impl<F: Float> VertexCollectionBuilder<Point3D<F>> {
-    pub fn new_3d(nx: usize, ny: usize, nz: usize) -> Self {
+impl VertexCollectionBuilder<Point3D<f32>> {
+    pub fn new_3d_f32(nx: usize, ny: usize, nz: usize) -> Self {
         VertexCollectionBuilder {
             dimensions: Dimensions::Three { nx, ny, nz },
             write_order: None, 
             _phantom: PhantomData,
         }
     }
+}
 
-    pub fn set_f32(self) -> VertexCollectionBuilder<Point3D<f32>> {
+impl VertexCollectionBuilder<Point3D<f64>> {
+    pub fn new_3d_f64(nx: usize, ny: usize, nz: usize) -> Self {
         VertexCollectionBuilder {
-            dimensions: self.dimensions,
-            write_order: self.write_order,
-            _phantom: PhantomData,
-        }
-    }
-
-    pub fn set_f64(self) -> VertexCollectionBuilder<Point3D<f64>> {
-        VertexCollectionBuilder {
-            dimensions: self.dimensions,
-            write_order: self.write_order,
+            dimensions: Dimensions::Three { nx, ny, nz },
+            write_order: None, 
             _phantom: PhantomData,
         }
     }
@@ -118,10 +104,86 @@ mod tests {
 
     #[test]
     fn test_vertex_collection_builder() {
-        let collection_2d = VertexCollectionBuilder::new_2d(9, 9)
+        let collection_2d = VertexCollectionBuilder::new_2d_f32(9, 9)
             .set_write_order(WriteOrder::IJK)
-            .set_f32()
             .build();
         assert!(collection_2d.is_ok());
+    }
+
+    // Test that building a 2D collection with f32 works as expected.
+    #[test]
+    fn test_2d_f32_builder_success() {
+        let vc = VertexCollectionBuilder::new_2d_f32(10, 20)
+            .set_write_order(WriteOrder::IJK)
+            .build();
+        assert!(vc.is_ok(), "2D f32 builder should build successfully");
+        let collection = vc.unwrap();
+        // Check that dimensions returns 2
+        assert_eq!(collection.dimensions.dimensions(), 2);
+        // And the vertex collection is initially empty.
+        assert!(collection.vertices.is_empty());
+    }
+
+    // Test that building a 2D collection with f64 works as expected.
+    #[test]
+    fn test_2d_f64_builder_success() {
+        let vc = VertexCollectionBuilder::new_2d_f64(15, 25)
+            .set_write_order(WriteOrder::JIK)
+            .build();
+        assert!(vc.is_ok(), "2D f64 builder should build successfully");
+        let collection = vc.unwrap();
+        assert_eq!(collection.dimensions.dimensions(), 2);
+        assert!(collection.vertices.is_empty());
+    }
+
+    // Test that building a 3D collection with f32 works as expected.
+    #[test]
+    fn test_3d_f32_builder_success() {
+        let vc = VertexCollectionBuilder::new_3d_f32(8, 16, 32)
+            .set_write_order(WriteOrder::IJK)
+            .build();
+        assert!(vc.is_ok(), "3D f32 builder should build successfully");
+        let collection = vc.unwrap();
+        // For a 3D collection, dimensions() should return 3.
+        assert_eq!(collection.dimensions.dimensions(), 3);
+        assert!(collection.vertices.is_empty());
+    }
+
+    // Test that building a 3D collection with f64 works as expected.
+    #[test]
+    fn test_3d_f64_builder_success() {
+        let vc = VertexCollectionBuilder::new_3d_f64(12, 24, 36)
+            .set_write_order(WriteOrder::JIK)
+            .build();
+        assert!(vc.is_ok(), "3D f64 builder should build successfully");
+        let collection = vc.unwrap();
+        assert_eq!(collection.dimensions.dimensions(), 3);
+        assert!(collection.vertices.is_empty());
+    }
+
+    // Test that build fails if write_order is not set.
+    #[test]
+    fn test_builder_missing_write_order() {
+        let vc = VertexCollectionBuilder::new_2d_f32(10, 20)
+            .build();
+        assert!(vc.is_err(), "Builder with no write order should error");
+    }
+
+    // (Optional) Test adding a vertex.
+    #[test]
+    fn test_add_vertex_to_collection() {
+        // Create a 2D collection builder, build it, then add a vertex.
+        let mut collection = VertexCollectionBuilder::new_2d_f32(10, 20)
+            .set_write_order(WriteOrder::IJK)
+            .build()
+            .expect("Builder should succeed");
+
+        // Create a dummy vertex with id 1 and a Point2D<f32>
+        // (Assuming Vertex::new(id, coords) exists in your vertex module.)
+        let vertex = Vertex::new_2d(1, 10_f32, 10_f32);
+        collection.add_vertex(vertex);
+
+        // Check that the vertex was added.
+        assert_eq!(collection.vertices.len(), 1);
     }
 }
