@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use super::prelude::*;
 use super::points::{Dimensioned, Point, Point2D, Point3D};
 

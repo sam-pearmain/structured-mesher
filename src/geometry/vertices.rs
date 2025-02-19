@@ -1,5 +1,6 @@
-use std::marker::PhantomData;
+#![allow(dead_code)]
 
+use std::marker::PhantomData;
 use super::points::{Dimensioned, Point2D, Point3D};
 use super::{points::{Dimensions, Point}, vertex::Vertex};
 
@@ -110,7 +111,6 @@ mod tests {
         assert!(collection_2d.is_ok());
     }
 
-    // Test that building a 2D collection with f32 works as expected.
     #[test]
     fn test_2d_f32_builder_success() {
         let vc = VertexCollectionBuilder::new_2d_f32(10, 20)
@@ -118,13 +118,10 @@ mod tests {
             .build();
         assert!(vc.is_ok(), "2D f32 builder should build successfully");
         let collection = vc.unwrap();
-        // Check that dimensions returns 2
         assert_eq!(collection.dimensions.dimensions(), 2);
-        // And the vertex collection is initially empty.
         assert!(collection.vertices.is_empty());
     }
 
-    // Test that building a 2D collection with f64 works as expected.
     #[test]
     fn test_2d_f64_builder_success() {
         let vc = VertexCollectionBuilder::new_2d_f64(15, 25)
@@ -136,7 +133,6 @@ mod tests {
         assert!(collection.vertices.is_empty());
     }
 
-    // Test that building a 3D collection with f32 works as expected.
     #[test]
     fn test_3d_f32_builder_success() {
         let vc = VertexCollectionBuilder::new_3d_f32(8, 16, 32)
@@ -144,12 +140,10 @@ mod tests {
             .build();
         assert!(vc.is_ok(), "3D f32 builder should build successfully");
         let collection = vc.unwrap();
-        // For a 3D collection, dimensions() should return 3.
         assert_eq!(collection.dimensions.dimensions(), 3);
         assert!(collection.vertices.is_empty());
     }
 
-    // Test that building a 3D collection with f64 works as expected.
     #[test]
     fn test_3d_f64_builder_success() {
         let vc = VertexCollectionBuilder::new_3d_f64(12, 24, 36)
@@ -161,7 +155,6 @@ mod tests {
         assert!(collection.vertices.is_empty());
     }
 
-    // Test that build fails if write_order is not set.
     #[test]
     fn test_builder_missing_write_order() {
         let vc = VertexCollectionBuilder::new_2d_f32(10, 20)
@@ -169,21 +162,16 @@ mod tests {
         assert!(vc.is_err(), "Builder with no write order should error");
     }
 
-    // (Optional) Test adding a vertex.
     #[test]
     fn test_add_vertex_to_collection() {
-        // Create a 2D collection builder, build it, then add a vertex.
         let mut collection = VertexCollectionBuilder::new_2d_f32(10, 20)
             .set_write_order(WriteOrder::IJK)
             .build()
             .expect("Builder should succeed");
 
-        // Create a dummy vertex with id 1 and a Point2D<f32>
-        // (Assuming Vertex::new(id, coords) exists in your vertex module.)
         let vertex = Vertex::new_2d(1, 10_f32, 10_f32);
         collection.add_vertex(vertex);
 
-        // Check that the vertex was added.
         assert_eq!(collection.vertices.len(), 1);
     }
 }
