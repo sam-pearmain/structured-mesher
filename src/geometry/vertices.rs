@@ -68,6 +68,22 @@ impl<F: Float> VertexCollectionBuilder<Point2D<F>> {
             _phantom: PhantomData,
         }
     }
+
+    pub fn set_f32(self) -> VertexCollectionBuilder<Point2D<f32>> {
+        VertexCollectionBuilder {
+            dimensions: self.dimensions,
+            write_order: self.write_order,
+            _phantom: PhantomData,
+        }
+    }
+
+    pub fn set_f64(self) -> VertexCollectionBuilder<Point2D<f64>> {
+        VertexCollectionBuilder {
+            dimensions: self.dimensions,
+            write_order: self.write_order,
+            _phantom: PhantomData,
+        }
+    }
 }
 
 impl<F: Float> VertexCollectionBuilder<Point3D<F>> {
@@ -75,6 +91,22 @@ impl<F: Float> VertexCollectionBuilder<Point3D<F>> {
         VertexCollectionBuilder {
             dimensions: Dimensions::Three { nx, ny, nz },
             write_order: None, 
+            _phantom: PhantomData,
+        }
+    }
+
+    pub fn set_f32(self) -> VertexCollectionBuilder<Point3D<f32>> {
+        VertexCollectionBuilder {
+            dimensions: self.dimensions,
+            write_order: self.write_order,
+            _phantom: PhantomData,
+        }
+    }
+
+    pub fn set_f64(self) -> VertexCollectionBuilder<Point3D<f64>> {
+        VertexCollectionBuilder {
+            dimensions: self.dimensions,
+            write_order: self.write_order,
             _phantom: PhantomData,
         }
     }
@@ -88,6 +120,8 @@ mod tests {
     fn test_vertex_collection_builder() {
         let collection_2d = VertexCollectionBuilder::new_2d(9, 9)
             .set_write_order(WriteOrder::IJK)
+            .set_f32()
             .build();
+        assert!(collection_2d.is_ok());
     }
 }
