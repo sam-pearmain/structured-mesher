@@ -1,4 +1,8 @@
-use super::points::Dimensioned;
+use std::marker::PhantomData;
+
+use num_traits::Float;
+
+use super::points::{Dimensioned, Point2D, Point3D};
 use super::{points::{Dimensions, Point}, vertex::Vertex};
 
 pub enum WriteOrder {
@@ -32,40 +36,58 @@ impl<P: Point> VertexCollection<P> {
     }
 }
 
-pub struct VertexCollectionBuilder {
+pub struct VertexCollectionBuilder<P: Point> {
     dimensions: Dimensions,
-    write_order: WriteOrder,
+    write_order: Option<WriteOrder>,
+    _phantom: PhantomData<P>,
 }
 
-impl VertexCollectionBuilder {
-    fn build<P: Point>(self) -> VertexCollection<P> {
-        if self.dimensions.is_2d() {
-            VertexCollection {
-                vertices: Vec::new(),
-                dimensions: self.dimensions,
-                write_order: self.write_order,
-            }
-        } else {
-            VertexCollection { 
-                vertices: Vec::new(),
-                dimensions: self.dimensions,
-                write_order: self.write_order,
-            }
+impl<P: Point> VertexCollectionBuilder<P> {
+    pub fn set_write_order(mut self, write_order: WriteOrder) -> Self {
+        self.write_order = Some(write_order);
+        self
+    }
+
+    pub fn build(self) -> Result<VertexCollection<P>, &'static str> {
+        if self.write_order.is_none() {
+            return Err("write order not set, cannot build")
+        }
+        Ok(VertexCollection {
+            vertices: Vec::new(),
+            dimensions: self.dimensions,
+            write_order: self.write_order.unwrap(),
+        })
+    }
+}
+
+impl<F: Float> VertexCollectionBuilder<Point2D<F>> {
+    pub fn new_2d(nx: usize, ny: usize) -> Self {
+        VertexCollectionBuilder {
+            dimensions: Dimensions::Two { nx, ny },
+            write_order: None,
+            _phantom: PhantomData,
         }
     }
+}
 
-    fn set_2d(mut self, nx: usize, ny: usize) -> Self {
-        self.dimensions = Dimensions::Two { nx: nx, ny: ny };
-        self
+impl<F: Float> VertexCollectionBuilder<Point3D<F>> {
+    pub fn new_3d(nx: usize, ny: usize, nz: usize) -> Self {
+        VertexCollectionBuilder {
+            dimensions: Dimensions::Three { nx, ny, nz },
+            write_order: None, 
+            _phantom: PhantomData,
+        }
     }
+}
 
-    fn set_3d(mut self, nx: usize, ny: usize, nz: usize) -> Self {
-        self.dimensions = Dimensions::Three { nx: nx, ny: ny, nz: nz };
-        self
-    }
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-    fn set_write_order(mut self, write_order: WriteOrder) -> Self {
-        self.write_order = write_order;
-        self
+    #[test]
+    fn test_vertex_collection_builder() {
+        let collection_2d = VertexCollectionBuilder::new_2d(9, 9)
+            .set_write_order(WriteOrder::IJK)
+            .build();
     }
 }
