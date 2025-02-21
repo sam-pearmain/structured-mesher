@@ -1,5 +1,5 @@
-mod line;
-mod points;
-mod prelude;
-mod vertex;
-mod vertices;
+pub mod line;
+pub mod points;
+pub mod prelude;
+pub mod vertex;
+pub mod vertices;
