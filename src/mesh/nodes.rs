@@ -1,5 +1,9 @@
-use num_traits::Float;
+use crate::geometry::{line::Line, points::Point};
 
-use crate::geometry::line::Line;
-
-pub struct Node<F: Float> {}
+pub struct Node<'a, P: Point> {
+    id: usize, 
+    north_face: Line<'a, P>,
+    south_face: Line<'a, P>,
+    east_face:  Line<'a, P>,
+    west_face:  Line<'a, P>,
+}
