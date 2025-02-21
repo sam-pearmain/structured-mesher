@@ -33,6 +33,10 @@ impl<P: Point> VertexCollection<P> {
             self.vertices.push(v);
         }
     }
+
+    fn export_csv(&self, filename: &str) {
+        
+    }
 }
 
 pub struct VertexCollectionBuilder<P: Point> {
