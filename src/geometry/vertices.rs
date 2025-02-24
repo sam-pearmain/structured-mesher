@@ -35,7 +35,7 @@ impl<P: Point> VertexCollection<P> {
     }
 
     fn export_csv(&self, filename: &str) {
-        
+        // todo
     }
 }
 

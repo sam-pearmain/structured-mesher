@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use num_traits::Float;
 use super::{points::{Dimensioned, Point, Point2D, Point3D}, vertex::Vertex};
 
