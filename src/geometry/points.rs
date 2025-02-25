@@ -24,7 +24,20 @@ impl Dimensioned for Dimensions {
     }
 }
 
-pub trait Point: Dimensioned {}
+impl Dimensions {
+    pub fn total_points(&self) -> usize {
+        match self {
+            Dimensions::Two { nx, ny } => nx * ny,
+            Dimensions::Three { nx, ny, nz } => nx * ny * nz,
+        }
+    }
+}
+
+pub trait Point: Dimensioned {
+    fn x(&self) -> f64;
+    fn y(&self) -> f64;
+    fn z(&self) -> f64;
+}
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Point2D {
@@ -42,7 +55,19 @@ impl Dimensioned for Point2D {
     }
 }
 
-impl Point for Point2D {}
+impl Point for Point2D {
+    fn x(&self) -> f64 {
+        self.x
+    }
+
+    fn y(&self) -> f64 {
+        self.y
+    }
+
+    fn z(&self) -> f64 {
+        panic!("z coordinate accessed for 2D point")
+    }
+}
 
 impl Point2D {
     pub fn new(x: f64, y: f64) -> Self {
@@ -71,7 +96,19 @@ impl Dimensioned for Point3D {
     }
 }
 
-impl Point for Point3D {}
+impl Point for Point3D {
+    fn x(&self) -> f64 {
+        self.x
+    }
+
+    fn y(&self) -> f64 {
+        self.y
+    }
+
+    fn z(&self) -> f64 {
+        self.z
+    }
+}
 
 impl Point3D {
     pub fn new(x: f64, y: f64, z: f64) -> Self {

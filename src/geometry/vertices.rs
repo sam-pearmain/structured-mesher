@@ -1,18 +1,16 @@
 #![allow(dead_code)]
 
-use std::marker::PhantomData;
-
 use super::points::{Dimensioned, Point, Dimensions, Point2D, Point3D};
 use super::vertex::Vertex;
 
 /// should be able to store both 2d and 3d sets of vertices and 
 /// have common functoinality to interpret the vertices
-pub struct VertexCollection<P: Point> {
+pub struct Vertices<P: Point> {
     vertices: Vec<Vertex<P>>,
     dimensions: Dimensions,
 }
 
-impl<P: Point> Dimensioned for VertexCollection<P> {
+impl<P: Point> Dimensioned for Vertices<P> {
     fn is_2d(&self) -> bool {
         self.dimensions.is_2d()
     }
@@ -22,56 +20,27 @@ impl<P: Point> Dimensioned for VertexCollection<P> {
     }
 }
 
-impl<P: Point> VertexCollection<P> {
-    fn add_vertex(&mut self, v: Vertex<P>) {
-        if self.dimensions() == v.dimensions() {
-            self.vertices.push(v);
+impl Vertices<Point2D> {
+    pub fn new_2d(nx: usize, ny: usize) -> Vertices<Point2D> {
+        Vertices { vertices: Vec::new(), dimensions: Dimensions::Two { nx, ny } }
+    }
+}
+
+impl Vertices<Point3D> {
+    pub fn new_3d(nx: usize, ny: usize, nz: usize) -> Vertices<Point3D> {
+        Vertices { vertices: Vec::new(), dimensions: Dimensions::Three { nx, ny, nz } }
+    } 
+}
+
+impl<P: Point> Vertices<P> {
+    pub fn add_vertex(&mut self, vertex: Vertex<P>) {
+        if vertex.dimensions() ==  self.dimensions() {
+            self.vertices.push(vertex);
         }
     }
 
-    fn is_empty(&self) -> bool {
-        self.vertices.is_empty()
-    }
-
-    fn total_vertices(&self) -> usize {
-        self.vertices.len()
-    }
-}
-
-pub struct VertexCollectionBuilder<P: Point> {
-    dimensions: Option<Dimensions>,
-    _phantom: PhantomData<P>,
-}
-
-impl<P: Point> VertexCollectionBuilder<P> {
-    pub fn build(self) -> Result<VertexCollection<P>, &'static str> {
-        let dimensions = match self.dimensions {
-            Some(d) => d,
-            None => return Err("dimensions must be set before attempting to build a vertex collection"),
-        };
-        
-        Ok(VertexCollection {
-            vertices: Vec::new(),
-            dimensions
-        })
-    }
-}
-
-impl VertexCollectionBuilder<Point2D> {
-    pub fn new_2d(nx: usize, ny: usize) -> Self {
-        VertexCollectionBuilder {
-            dimensions: Some(Dimensions::Two { nx, ny }),
-            _phantom: PhantomData,
-        }
-    }
-}
-
-impl VertexCollectionBuilder<Point3D> {
-    pub fn new_3d(nx: usize, ny: usize, nz: usize) -> Self {
-        VertexCollectionBuilder {
-            dimensions: Some(Dimensions::Three { nx, ny, nz }),
-            _phantom: PhantomData,
-        }
+    pub fn export_csv(&self) -> Result<(), &'static str> {
+        todo!()
     }
 }
 
@@ -80,9 +49,32 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_vertex_collection_builder() {
-        let collection = VertexCollectionBuilder::new_2d(10, 10)
-            .build();
-        assert!(collection.is_ok());
+    fn test_creation() {
+        let vertices_2d = Vertices::new_2d(10, 10);
+        let vertices_3d = Vertices::new_3d(10, 10, 10);
+        assert!(vertices_2d.is_2d());
+        assert!(!vertices_3d.is_2d());
+    }
+
+    #[test]
+    fn test_adding_vertices() {
+        let mut vertices_2d = Vertices::new_2d(10, 10);
+        let mut vertices_3d = Vertices::new_3d(10, 10, 10);
+        vertices_2d.add_vertex(Vertex::new_2d(0, 1.0, 2.0));
+        vertices_3d.add_vertex(Vertex::new_3d(0, 1.0, 2.0, 3.0));
+
+        assert_eq!(vertices_2d.vertices.len(), 1);
+        assert_eq!(vertices_3d.vertices.len(), 1);
+
+        let v2d = &vertices_2d.vertices[0];
+        assert_eq!(v2d.get_id(), 0);
+        assert_eq!(v2d.get_x(), 1.0);
+        assert_eq!(v2d.get_y(), 2.0);
+
+        let v3d = &vertices_3d.vertices[0];
+        assert_eq!(v3d.get_id(), 0);
+        assert_eq!(v3d.get_x(), 1.0);
+        assert_eq!(v3d.get_y(), 2.0);
+        assert_eq!(v3d.get_z(), 3.0);
     }
 }

@@ -15,25 +15,21 @@ pub enum BoundaryType {
 
 pub struct Block<'a, P: Point> {
     pub id: usize, 
-    pub vertices: VertexCollection<P>,
+    pub vertices: Vertices<P>,
     pub nodes: NodeCollection<'a, P>, 
 }
 
-pub struct BlockBuilder<'a, P: Point> {
+pub struct BlockBuilder<P: Point> {
     id: usize, 
     dimensions: Option<Dimensions>,
-    vertex_collection_builder: Option<VertexCollectionBuilder<P>>,
-    node_collection_builder: Option<NodeCollection<'a, P>>,
     _phantom: PhantomData<P>,
 }
 
-impl<'a, P: Point> BlockBuilder<'a, P> {
+impl<'a, P: Point> BlockBuilder<P> {
     fn new(id: usize) -> Self {
         BlockBuilder {
             id, 
-            dimensions: None, 
-            vertex_collection_builder: None,
-            node_collection_builder: None, 
+            dimensions: None,
             _phantom: PhantomData,
         }
     }

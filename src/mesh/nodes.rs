@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use crate::geometry::{line::Line, points::{Dimensioned, Point}};
+use crate::geometry::prelude::*;
 
 pub struct Node<'a, P: Point> {
     id: usize, 
@@ -49,5 +49,9 @@ impl<'a, P: Point> Dimensioned for NodeCollection<'a, P> {
 impl<'a, P: Point> NodeCollection<'a, P> {
     pub fn is_empty(&self) -> bool {
         self.nodes.is_empty()
+    }
+
+    pub fn populate(&mut self, vertices: &Vertices<P>) {
+        todo!();
     }
 }
