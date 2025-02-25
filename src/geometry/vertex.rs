@@ -3,7 +3,7 @@
 use super::points::{Dimensioned, Point, Point2D, Point3D};
 
 pub struct Vertex<P: Point> {
-    id: usize,
+    pub id: usize,
     coords: P,
 }
 
@@ -18,6 +18,10 @@ impl<P: Point> Vertex<P> {
 
     pub fn get_y(&self) -> f64 {
         self.coords.y()
+    }
+
+    pub fn get_z(&self) -> f64 {
+        self.coords.z()
     }
 }
 
@@ -40,10 +44,6 @@ impl Vertex<Point2D> {
 impl Vertex<Point3D> {
     pub fn new_3d(id: usize, x: f64, y: f64, z: f64) -> Vertex<Point3D> {
         Vertex { id: id, coords: Point3D::new(x, y, z) }
-    }
-
-    pub fn get_z(&self) -> f64 {
-        self.coords.z()
     }
 }
 
