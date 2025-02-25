@@ -2,7 +2,7 @@
 
 use std::marker::PhantomData;
 use crate::geometry::prelude::*;
-use crate::mesh::nodes::{Node, NodeCollection};
+use crate::mesh::nodes::NodeCollection;
 
 pub enum BoundaryType {
     North,  // 2D

@@ -198,6 +198,10 @@ impl<P: Point> Vertices<P> {
         }
     }
 
+    pub fn vertices(&self) -> &Vec<Vertex<P>> {
+        &self.vertices
+    }
+
     pub fn export_csv(&self, filename: &str) -> Result<(), &'static str> {
         let file = File::create(filename).map_err(|_| "failed to create file")?;
         let mut writer = BufWriter::new(file);
