@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use crate::geometry::{line::Line, points::{Dimensioned, Point}};
 
 pub struct Node<'a, P: Point> {

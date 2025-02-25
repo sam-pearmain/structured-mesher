@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use crate::geometry::{points::Point, vertices::VertexCollection};
 
 use super::nodes::Node;
