@@ -1,6 +1,5 @@
 #![allow(dead_code)]
 
-use num_traits::Float;
 use super::{points::{Dimensioned, Point, Point2D, Point3D}, vertex::Vertex};
 
 pub struct Line<'a, P: Point> {
@@ -8,14 +7,14 @@ pub struct Line<'a, P: Point> {
     pub end:   &'a Vertex<P>,
 }
 
-impl<'a, F: Float> Line<'a, Point2D<F>> {
-    pub fn new_2d(v1: &'a Vertex<Point2D<F>>, v2: &'a Vertex<Point2D<F>>) -> Self {
+impl<'a> Line<'a, Point2D> {
+    pub fn new_2d(v1: &'a Vertex<Point2D>, v2: &'a Vertex<Point2D>) -> Self {
         Line { start: v1, end: v2 }
     }
 }
 
-impl<'a, F: Float> Line<'a, Point3D<F>> {
-    pub fn new_3d(v1: &'a Vertex<Point3D<F>>, v2: &'a Vertex<Point3D<F>>) -> Self {
+impl<'a> Line<'a, Point3D> {
+    pub fn new_3d(v1: &'a Vertex<Point3D>, v2: &'a Vertex<Point3D>) -> Self {
         Line { start: v1, end: v2 }
     }
 }

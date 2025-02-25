@@ -1,6 +1,5 @@
 #![allow(dead_code)]
 
-use super::prelude::*;
 use super::points::{Dimensioned, Point, Point2D, Point3D};
 
 pub struct Vertex<P: Point> {
@@ -18,14 +17,14 @@ impl<P: Point> Dimensioned for Vertex<P> {
     }
 }
 
-impl<F: Float> Vertex<Point2D<F>> {
-    pub fn new_2d(id: usize, x: F, y: F) -> Vertex<Point2D<F>> {
+impl Vertex<Point2D> {
+    pub fn new_2d(id: usize, x: f64, y: f64) -> Vertex<Point2D> {
         Vertex { id: id, coords: Point2D::new(x, y) }
     }
 }
 
-impl<F: Float> Vertex<Point3D<F>> {
-    pub fn new_3d(id: usize, x: F, y: F, z: F) -> Vertex<Point3D<F>> {
+impl Vertex<Point3D> {
+    pub fn new_3d(id: usize, x: f64, y: f64, z: f64) -> Vertex<Point3D> {
         Vertex { id: id, coords: Point3D::new(x, y, z) }
     }
 }
@@ -36,9 +35,9 @@ mod tests {
 
     #[test]
     fn test_vertex_2d_creation() {
-        let vertex = Vertex::new_2d(1, 1f32, 1f32);
+        let vertex = Vertex::new_2d(1, 1.0, 1.0);
         assert_eq!(vertex.id, 1);
-        assert_eq!(vertex.coords, Point2D::new(1f32, 1f32));
+        assert_eq!(vertex.coords, Point2D::new(1.0, 1.0));
         assert_eq!(vertex.dimensions(), 2);
         assert!(vertex.is_2d());
     }

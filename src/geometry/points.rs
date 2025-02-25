@@ -1,7 +1,5 @@
 #![allow(dead_code)]
 
-use super::prelude::*;
-
 pub trait Dimensioned {
     fn is_2d(&self) -> bool;
     fn dimensions(&self) -> usize;
@@ -29,12 +27,12 @@ impl Dimensioned for Dimensions {
 pub trait Point: Dimensioned {}
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct Point2D<F: Float> {
-    x: F,
-    y: F,
+pub struct Point2D {
+    x: f64,
+    y: f64,
 }
 
-impl<F: Float> Dimensioned for Point2D<F> {
+impl Dimensioned for Point2D {
     fn is_2d(&self) -> bool {
         true
     }
@@ -44,26 +42,26 @@ impl<F: Float> Dimensioned for Point2D<F> {
     }
 }
 
-impl<F: Float> Point2D<F> {
-    pub fn new(x: F, y: F) -> Self {
-        Point2D { x: x, y: y }
+impl Point for Point2D {}
+
+impl Point2D {
+    pub fn new(x: f64, y: f64) -> Self {
+        Point2D { x, y }
     }
 
     pub fn at_origin() -> Self {
-        Point2D { x: F::zero(), y: F::zero() }
+        Point2D { x: 0.0_f64, y: 0.0_f64 }
     }
 }
 
-impl<F: Float> Point for Point2D<F> {}
-
 #[derive(Debug, Clone, PartialEq)]
-pub struct Point3D<F: Float> {
-    x: F, 
-    y: F, 
-    z: F,
+pub struct Point3D {
+    x: f64, 
+    y: f64, 
+    z: f64,
 }
 
-impl<F: Float> Dimensioned for Point3D<F> {
+impl Dimensioned for Point3D {
     fn is_2d(&self) -> bool {
         false
     }
@@ -73,14 +71,14 @@ impl<F: Float> Dimensioned for Point3D<F> {
     }
 }
 
-impl<F: Float> Point3D<F> {
-    pub fn new(x: F, y: F, z: F) -> Self {
-        Point3D { x: x, y: y, z: z }
+impl Point for Point3D {}
+
+impl Point3D {
+    pub fn new(x: f64, y: f64, z: f64) -> Self {
+        Point3D { x, y, z }
     }
 
     pub fn at_origin() -> Self {
-        Point3D { x: F::zero(), y: F::zero(), z: F::zero() }
+        Point3D { x: 0.0_f64, y: 0.0_f64, z: 0.0_f64 }
     }
 }
-
-impl<F: Float> Point for Point3D<F> {}
