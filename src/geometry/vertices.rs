@@ -186,7 +186,7 @@ impl<P: Point> Vertices<P> {
 
     pub fn get_vertex(&self, vertex_id: usize) -> Option<&Vertex<P>> {
         self.vertices.iter()
-            .find(|&v| v.id == vertex_id)
+            .find(|&v| v.get_id() == vertex_id)
     }
     
     pub fn vertex_exists(&self, vertex_id: usize) -> bool {

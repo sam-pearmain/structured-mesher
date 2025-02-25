@@ -3,7 +3,7 @@
 use super::points::{Dimensioned, Point, Point2D, Point3D};
 
 pub struct Vertex<P: Point> {
-    pub id: usize,
+    id: usize,
     coords: P,
 }
 
