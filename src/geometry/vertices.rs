@@ -34,8 +34,12 @@ impl<P: Point> VertexCollection<P> {
         }
     }
 
-    fn export_csv(&self, filename: &str) {
-        // todo
+    fn is_empty(&self) -> bool {
+        self.vertices.is_empty()
+    }
+
+    fn total_vertices(&self) -> usize {
+        self.vertices.len()
     }
 }
 
