@@ -83,17 +83,16 @@ impl Vertices<Point2D> {
     }
 
     pub fn populate_uniform(&mut self) {
-        if let Dimensions::Two { nx, ny } = self.dimensions {
-            let dx = 1.0 / (nx - 1) as f64;
-            let dy = 1.0 / (ny - 1) as f64;
-            
-            for j in 0..ny {
-                for i in 0..nx {
-                    let id = i + j * nx;
-                    let x = i as f64 * dx;
-                    let y = j as f64 * dy;
-                    self.add_vertex(Vertex::new_2d(id, x, y));
-                }
+        let (nx, ny, _) = self.dimensions.as_tuple();
+        let dx = 1.0 / (nx - 1) as f64;
+        let dy = 1.0 / (ny - 1) as f64;
+        
+        for j in 0..ny {
+            for i in 0..nx {
+                let id = i + j * nx;
+                let x = i as f64 * dx;
+                let y = j as f64 * dy;
+                self.add_vertex(Vertex::new_2d(id, x, y));
             }
         }
     }
@@ -157,20 +156,20 @@ impl Vertices<Point3D> {
     }
 
     pub fn populate_uniform(&mut self) {
-        if let Dimensions::Three { nx, ny, nz } = self.dimensions {
-            let dx = 1.0 / (nx - 1) as f64;
-            let dy = 1.0 / (ny - 1) as f64;
-            let dz = 1.0 / (nz - 1) as f64;
-            
-            for k in 0..nz {
-                for j in 0..ny {
-                    for i in 0..nx {
-                        let id = i + j * nx + k * nx * ny;
-                        let x = i as f64 * dx;
-                        let y = j as f64 * dy;
-                        let z = k as f64 * dz;
-                        self.add_vertex(Vertex::new_3d(id, x, y, z));
-                    }
+        let (nx, ny, nz) = self.dimensions.as_tuple();
+        let nz = nz.unwrap();
+        let dx = 1.0 / (nx - 1) as f64;
+        let dy = 1.0 / (ny - 1) as f64;
+        let dz = 1.0 / (nz - 1) as f64;
+        
+        for k in 0..nz {
+            for j in 0..ny {
+                for i in 0..nx {
+                    let id = i + j * nx + k * nx * ny;
+                    let x = i as f64 * dx;
+                    let y = j as f64 * dy;
+                    let z = k as f64 * dz;
+                    self.add_vertex(Vertex::new_3d(id, x, y, z));
                 }
             }
         }
