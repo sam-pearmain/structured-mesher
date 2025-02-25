@@ -6,6 +6,15 @@ use std::io::{Write, BufWriter};
 use super::points::{Dimensioned, Point, Dimensions, Point2D, Point3D};
 use super::vertex::Vertex;
 
+pub enum Direction {
+    North,
+    South, 
+    East, 
+    West,
+    Up, 
+    Down,
+}
+
 pub struct Vertices<P: Point> {
     vertices: Vec<Vertex<P>>,
     dimensions: Dimensions,
@@ -21,9 +30,56 @@ impl<P: Point> Dimensioned for Vertices<P> {
     }
 }
 
+// methods for groups of 2D vertices
 impl Vertices<Point2D> {
     pub fn new_2d(nx: usize, ny: usize) -> Vertices<Point2D> {
         Vertices { vertices: Vec::new(), dimensions: Dimensions::Two { nx, ny } }
+    }
+
+    pub fn get_adjacent_vertex(&self, vertex_id: usize, direction: Direction) -> Option<&Vertex<Point2D>> {
+        let (i, j) = self.vertex_id_to_ij(vertex_id)?;
+        let (nx, ny, _) = self.dimensions.as_tuple();
+
+        let (new_i, new_j) = match direction {
+            Direction::East => {
+                if i + 1 >= nx { return None; } // eastern boundary
+                (i + 1, j)
+            }
+            Direction::West => {
+                if i == 0 { return None; } // western boundary
+                (i - 1, j)
+            }
+            Direction::North => {
+                if j + 1 >= ny { return None; } // northern boundary
+                (i, j + 1)
+            }
+            Direction::South => {
+                if j == 0 { return None; } // southern boundary
+                (i, j - 1)
+            }
+            _ => return None,
+        };
+
+        let new_id = self.vertex_ij_to_id(new_i, new_j)?;
+        self.get_vertex(new_id)
+    }
+
+    pub fn vertex_id_to_ij(&self, vertex_id: usize) -> Option<(usize, usize)> {
+        if !self.vertex_exists(vertex_id) { return None; } // return none if the vertex doesn't exist
+        let (nx, _, _) = self.dimensions.as_tuple();
+        let i = vertex_id % nx;
+        let j = vertex_id / nx;
+        Some((i, j))
+    }
+
+    pub fn vertex_ij_to_id(&self, i: usize, j: usize) -> Option<usize> {
+        let (nx, _, _) = self.dimensions.as_tuple();
+        let vertex_id = (j * nx) + i;
+        if self.vertex_exists(vertex_id) {
+            Some(vertex_id)
+        } else {
+            None
+        }
     }
 
     pub fn populate_uniform(&mut self) {
@@ -43,10 +99,62 @@ impl Vertices<Point2D> {
     }
 }
 
+// methods for groups of 3D vertices
 impl Vertices<Point3D> {
     pub fn new_3d(nx: usize, ny: usize, nz: usize) -> Vertices<Point3D> {
         Vertices { vertices: Vec::new(), dimensions: Dimensions::Three { nx, ny, nz } }
     } 
+
+    pub fn get_adjacent_vertex(&self, vertex_id: usize, direction: Direction) -> Option<&Vertex<Point3D>> {
+        let (i, j, k) = self.vertex_id_to_ijk(vertex_id)?;
+        let (nx, ny, nz) = self.dimensions.as_tuple();
+
+        let (new_i, new_j, new_k) = match direction {
+            Direction::East => {
+                if i + 1 >= nx { return None; } // eastern boundary
+                (i + 1, j, k)
+            }
+            Direction::West => {
+                if i == 0 { return None; } // western boundary
+                (i - 1, j, k)
+            }
+            Direction::North => {
+                if j + 1 >= ny { return None; } // northern boundary
+                (i, j + 1, k)
+            }
+            Direction::South => {
+                if j == 0 { return None; } // southern boundary
+                (i, j - 1, k)
+            }
+            Direction::Up => {
+                if k + 1 >= nz.unwrap() { return None; } // upper boundary
+                (i, j, k + 1)
+            }
+            Direction::Down => {
+                if k == 0 { return None; } // lower boundary
+                (i, j, k - 1)
+            }
+        };
+
+        let new_id = self.vertex_ijk_to_id(new_i, new_j, new_k)?;
+        self.get_vertex(new_id)
+    }
+
+    pub fn vertex_id_to_ijk(&self, vertex_id: usize) -> Option<(usize, usize, usize)> {
+        if !self.vertex_exists(vertex_id) { return None; } // return none if the vertex does not exist
+        let (nx, ny, _) = self.dimensions.as_tuple();
+        let i = vertex_id % nx;
+        let j = (vertex_id / nx) % ny;
+        let k = vertex_id / (nx * ny);
+        Some((i, j, k))
+    }
+
+    pub fn vertex_ijk_to_id(&self, i: usize, j: usize, k: usize) -> Option<usize> {
+        let (nx, ny, nz) = self.dimensions.as_tuple();
+        if i >= nx || j >= ny || k >= nz.unwrap() { return None; } // vertex ijk is out of bounds
+        let vertex_id = i + (j * nx) + (k * nx * ny);
+        if self.vertex_exists(vertex_id) { Some(vertex_id) } else { None }
+    }
 
     pub fn populate_uniform(&mut self) {
         if let Dimensions::Three { nx, ny, nz } = self.dimensions {
@@ -69,6 +177,7 @@ impl Vertices<Point3D> {
     }
 }
 
+// shared methods that apply between both 2D and 3D lists of vertices
 impl<P: Point> Vertices<P> {
     pub fn add_vertex(&mut self, vertex: Vertex<P>) {
         if vertex.dimensions() ==  self.dimensions() {
@@ -79,6 +188,14 @@ impl<P: Point> Vertices<P> {
     pub fn get_vertex(&self, vertex_id: usize) -> Option<&Vertex<P>> {
         self.vertices.iter()
             .find(|&v| v.id == vertex_id)
+    }
+    
+    pub fn vertex_exists(&self, vertex_id: usize) -> bool {
+        if self.get_vertex(vertex_id).is_some() {
+            true
+        } else {
+            false
+        }
     }
 
     pub fn export_csv(&self, filename: &str) -> Result<(), &'static str> {

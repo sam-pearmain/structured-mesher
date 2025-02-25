@@ -25,6 +25,13 @@ impl Dimensioned for Dimensions {
 }
 
 impl Dimensions {
+    pub fn as_tuple(&self) -> (usize, usize, Option<usize>) {
+        match self {
+            Dimensions::Two { nx, ny } => (*nx, *ny, None),
+            Dimensions::Three { nx, ny, nz } => (*nx, *ny, Some(*nz))
+        }
+    }
+
     pub fn total_points(&self) -> usize {
         match self {
             Dimensions::Two { nx, ny } => nx * ny,
