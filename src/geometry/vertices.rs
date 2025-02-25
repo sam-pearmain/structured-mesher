@@ -7,12 +7,12 @@ use super::points::{Dimensioned, Point, Dimensions, Point2D, Point3D};
 use super::vertex::Vertex;
 
 pub enum Direction {
-    North,
-    South, 
-    East, 
-    West,
-    Up, 
-    Down,
+    North, // +j
+    South, // -j
+    East,  // +i
+    West,  // -i
+    Up,    // +k
+    Down,  // -k
 }
 
 pub struct Vertices<P: Point> {
