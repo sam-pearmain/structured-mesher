@@ -25,12 +25,48 @@ impl Vertices<Point2D> {
     pub fn new_2d(nx: usize, ny: usize) -> Vertices<Point2D> {
         Vertices { vertices: Vec::new(), dimensions: Dimensions::Two { nx, ny } }
     }
+
+    pub fn populate_uniform(&mut self) {
+        if let Dimensions::Two { nx, ny } = self.dimensions {
+            let dx = 1.0 / (nx - 1) as f64;
+            let dy = 1.0 / (ny - 1) as f64;
+            
+            for j in 0..ny {
+                for i in 0..nx {
+                    let id = i + j * nx;
+                    let x = i as f64 * dx;
+                    let y = j as f64 * dy;
+                    self.add_vertex(Vertex::new_2d(id, x, y));
+                }
+            }
+        }
+    }
 }
 
 impl Vertices<Point3D> {
     pub fn new_3d(nx: usize, ny: usize, nz: usize) -> Vertices<Point3D> {
         Vertices { vertices: Vec::new(), dimensions: Dimensions::Three { nx, ny, nz } }
     } 
+
+    pub fn populate_uniform(&mut self) {
+        if let Dimensions::Three { nx, ny, nz } = self.dimensions {
+            let dx = 1.0 / (nx - 1) as f64;
+            let dy = 1.0 / (ny - 1) as f64;
+            let dz = 1.0 / (nz - 1) as f64;
+            
+            for k in 0..nz {
+                for j in 0..ny {
+                    for i in 0..nx {
+                        let id = i + j * nx + k * nx * ny;
+                        let x = i as f64 * dx;
+                        let y = j as f64 * dy;
+                        let z = k as f64 * dz;
+                        self.add_vertex(Vertex::new_3d(id, x, y, z));
+                    }
+                }
+            }
+        }
+    }
 }
 
 impl<P: Point> Vertices<P> {
@@ -129,5 +165,18 @@ mod tests {
         assert!(contents.contains("1,3,4"));
         
         fs::remove_file(filename).expect("failed to clean up test file");
+    }
+
+    #[test]
+    fn test_populate_uniform() {
+        let mut vertices_2d = Vertices::new_2d(3, 2);
+        vertices_2d.populate_uniform();
+        vertices_2d.export_csv("2d.csv").expect("erm");
+        assert_eq!(vertices_2d.vertices.len(), 6);
+
+        let mut vertices_3d = Vertices::new_3d(2, 2, 2);
+        vertices_3d.populate_uniform();
+        vertices_3d.export_csv("3d.csv").expect("erm");
+        assert_eq!(vertices_3d.vertices.len(), 8);
     }
 }
