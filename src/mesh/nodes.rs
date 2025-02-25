@@ -26,11 +26,11 @@ impl<'a, P: Point> Dimensioned for Node<'a, P> {
     }
 }
 
-pub struct NodeCollection<'a, P: Point> {
+pub struct Nodes<'a, P: Point> {
     nodes: Vec<Node<'a, P>>,
 }
 
-impl<'a, P: Point> Dimensioned for NodeCollection<'a, P> {
+impl<'a, P: Point> Dimensioned for Nodes<'a, P> {
     fn is_2d(&self) -> bool {
         if self.is_empty() {
             // return error
@@ -46,7 +46,7 @@ impl<'a, P: Point> Dimensioned for NodeCollection<'a, P> {
     }
 }
 
-impl<'a, P: Point> NodeCollection<'a, P> {
+impl<'a, P: Point> Nodes<'a, P> {
     pub fn is_empty(&self) -> bool {
         self.nodes.is_empty()
     }

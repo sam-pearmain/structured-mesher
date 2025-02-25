@@ -1,8 +1,10 @@
 #![allow(dead_code)]
 
-use std::marker::PhantomData;
 use crate::geometry::prelude::*;
-use crate::mesh::nodes::NodeCollection;
+use crate::mesh::nodes::Nodes;
+
+type BoundaryFn2D = Box<dyn Fn(f64) -> f64>;        // y = f(x)
+type BoundaryFn3D = Box<dyn Fn(f64) -> (f64, f64)>; // z = f(x, y)
 
 pub enum BoundaryType {
     North,  // 2D
@@ -16,21 +18,16 @@ pub enum BoundaryType {
 pub struct Block<'a, P: Point> {
     pub id: usize, 
     pub vertices: Vertices<P>,
-    pub nodes: NodeCollection<'a, P>, 
+    pub nodes: Nodes<'a, P>, 
 }
 
-pub struct BlockBuilder<P: Point> {
-    id: usize, 
+pub struct BlockBuilder {
+    id: usize,
     dimensions: Option<Dimensions>,
-    _phantom: PhantomData<P>,
 }
 
-impl<'a, P: Point> BlockBuilder<P> {
+impl BlockBuilder {
     fn new(id: usize) -> Self {
-        BlockBuilder {
-            id, 
-            dimensions: None,
-            _phantom: PhantomData,
-        }
+        todo!()
     }
 }
