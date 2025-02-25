@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
-use super::{points::{Dimensioned, Point, Point2D, Point3D}, vertex::Vertex};
+use super::points::{Dimensioned, Point, Point2D, Point3D};
+use super::vertex::Vertex;
 
 pub struct Line<'a, P: Point> {
     pub start: &'a Vertex<P>,

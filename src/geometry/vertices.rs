@@ -1,8 +1,8 @@
 #![allow(dead_code)]
 
 use std::marker::PhantomData;
-use super::points::{Dimensioned, Point2D, Point3D};
-use super::{points::{Dimensions, Point}, vertex::Vertex};
+use super::points::{Dimensioned, Point, Dimensions, Point2D, Point3D};
+use super::vertex::Vertex;
 
 pub enum WriteOrder {
     IJK, // write row, then column, then layer
@@ -105,7 +105,6 @@ mod tests {
             .set_write_order(WriteOrder::IJK)
             .build();
         assert!(vc.is_ok(), "2D builder should build successfully");
-        let collection = vc.unwrap();
     }
 
     #[test]

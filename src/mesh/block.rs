@@ -1,11 +1,8 @@
 #![allow(dead_code)]
 
-use num_traits::Float;
 use std::marker::PhantomData;
-
-use crate::geometry::{points::{Point, Point2D}, vertices::VertexCollection};
-
-use super::nodes::Node;
+use crate::geometry::prelude::*;
+use crate::mesh::nodes::Node;
 
 pub enum BoundaryType {
     Vertical, 
