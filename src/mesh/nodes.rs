@@ -59,31 +59,60 @@ impl<'a, P: Point> Nodes<'a, P> {
 }
 
 impl<'a> Nodes<'a, Point2D> {
-    pub fn populate(&mut self, vertices: &'a Vertices<Point2D>) {
-        let node_id: usize = 0; 
+    pub fn new_2d() -> Self {
+        Nodes { nodes: Vec::new() }
+    }
+
+    pub fn populate(&mut self, vertices: &'a Vertices<Point2D>) -> Result<(), &'static str> {
+        if !vertices.is_2d() {
+            return Err("Cannot populate 2D nodes from non-2D vertices");
+        }
+
+        let mut node_id: usize = 0;
         for vertex in vertices.vertices() {
+            // Get adjacent vertices
             let east_vertex = vertices.get_adjacent_vertex(vertex.get_id(), Direction::East);
             let north_vertex = vertices.get_adjacent_vertex(vertex.get_id(), Direction::North);
-            if north_vertex.is_some() && east_vertex.is_some() {
-                // get all adjacent vertices
-                let east_vertex = east_vertex.unwrap();
-                let north_vertex = north_vertex.unwrap();
-                let northeast_vertex = vertices.get_adjacent_vertex(east_vertex.get_id(), Direction::North).unwrap();
-                // construct the bounding lines
-                let south = Line::new_2d(vertex, east_vertex);
-                let west = Line::new_2d(vertex, north_vertex);
-                let north = Line::new_2d(north_vertex, northeast_vertex);
-                let east = Line::new_2d(east_vertex, northeast_vertex);
-                // construct the node
-                let node = Node::new(
-                    node_id, 
-                    north, 
-                    south, 
-                    east, 
-                    west,
-                );
+            
+            // Only create node if we have both east and north vertices
+            if let (Some(east), Some(north)) = (east_vertex, north_vertex) {
+                // Get northeast vertex, required to complete the node
+                let northeast_vertex = vertices
+                    .get_adjacent_vertex(east.get_id(), Direction::North)
+                    .ok_or("Failed to get northeast vertex")?;
+
+                // Construct the bounding lines
+                let south = Line::new_2d(vertex, east);
+                let west = Line::new_2d(vertex, north);
+                let north = Line::new_2d(north, northeast_vertex);
+                let east = Line::new_2d(east, northeast_vertex);
+
+                // Construct and add the node
+                let node = Node::new(node_id, north, south, east, west);
                 self.add_node(node);
+                node_id += 1;
             }
+        }
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_populate_2d_nodes() {
+        let mut vertices = Vertices::new_2d(3, 3);
+        vertices.populate_uniform();
+
+        let mut nodes = Nodes::new_2d();
+        assert!(nodes.populate(&vertices).is_ok());
+
+        assert_eq!(nodes.nodes.len(), 4);
+        
+        for (i, node) in nodes.nodes.iter().enumerate() {
+            assert_eq!(node.id, i);
         }
     }
 }
