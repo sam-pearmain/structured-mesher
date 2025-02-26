@@ -51,7 +51,39 @@ impl<'a, P: Point> Nodes<'a, P> {
         self.nodes.is_empty()
     }
 
-    pub fn populate(&mut self, vertices: &Vertices<P>) {
-        todo!();
+    pub fn add_node(&mut self, node: Node<'a, P>) {
+        if node.dimensions() == self.dimensions() {
+            self.nodes.push(node);
+        }
+    }
+}
+
+impl<'a> Nodes<'a, Point2D> {
+    pub fn populate(&mut self, vertices: &'a Vertices<Point2D>) {
+        let node_id: usize = 0; 
+        for vertex in vertices.vertices() {
+            let east_vertex = vertices.get_adjacent_vertex(vertex.get_id(), Direction::East);
+            let north_vertex = vertices.get_adjacent_vertex(vertex.get_id(), Direction::North);
+            if north_vertex.is_some() && east_vertex.is_some() {
+                // get all adjacent vertices
+                let east_vertex = east_vertex.unwrap();
+                let north_vertex = north_vertex.unwrap();
+                let northeast_vertex = vertices.get_adjacent_vertex(east_vertex.get_id(), Direction::North).unwrap();
+                // construct the bounding lines
+                let south = Line::new_2d(vertex, east_vertex);
+                let west = Line::new_2d(vertex, north_vertex);
+                let north = Line::new_2d(north_vertex, northeast_vertex);
+                let east = Line::new_2d(east_vertex, northeast_vertex);
+                // construct the node
+                let node = Node::new(
+                    node_id, 
+                    north, 
+                    south, 
+                    east, 
+                    west,
+                );
+                self.add_node(node);
+            }
+        }
     }
 }
