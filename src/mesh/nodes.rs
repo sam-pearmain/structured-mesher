@@ -3,11 +3,11 @@
 use crate::geometry::prelude::*;
 
 pub struct Node<'a, P: Point> {
-    id: usize, 
-    north_face: Line<'a, P>,
-    south_face: Line<'a, P>,
-    east_face:  Line<'a, P>,
-    west_face:  Line<'a, P>,
+    pub id: usize, 
+    pub north_face: Line<'a, P>,
+    pub south_face: Line<'a, P>,
+    pub east_face:  Line<'a, P>,
+    pub west_face:  Line<'a, P>,
 }
 
 impl<'a, P: Point> Node<'a, P> {
@@ -27,7 +27,7 @@ impl<'a, P: Point> Dimensioned for Node<'a, P> {
 }
 
 pub struct Nodes<'a, P: Point> {
-    nodes: Vec<Node<'a, P>>,
+    pub nodes: Vec<Node<'a, P>>,
 }
 
 impl<'a, P: Point> Dimensioned for Nodes<'a, P> {

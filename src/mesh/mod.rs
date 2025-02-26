@@ -1,3 +1,3 @@
-mod block;
-mod boundary;
-mod nodes;
+pub mod block;
+pub mod boundary;
+pub mod nodes;

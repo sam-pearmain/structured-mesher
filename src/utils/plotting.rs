@@ -2,6 +2,7 @@
 
 use plotters::prelude::*;
 use crate::geometry::prelude::*;
+use crate::mesh::nodes::*;
 
 pub fn plot_vertices_2d(vertices: &Vertices<Point2D>, filename: &str) -> Result<(), Box<dyn std::error::Error>> {
     // create drawing area
@@ -122,6 +123,85 @@ pub fn plot_vertices_3d(vertices: &Vertices<Point3D>, filename: &str) -> Result<
     Ok(())
 }
 
+pub fn plot_nodes_2d(nodes: &Nodes<'_, Point2D>, filename: &str) -> Result<(), Box<dyn std::error::Error>> {
+    // create drawoing area
+    let root = BitMapBackend::new(filename, (2560, 1440)).into_drawing_area();
+
+    // find the bounds of all the vertices in all nodes
+    let mut min_x = f64::MAX;
+    let mut max_x = f64::MIN;
+    let mut min_y = f64::MAX;
+    let mut max_y = f64::MIN;
+
+    for node in &nodes.nodes {
+        for vertex in [
+            node.north_face.start, node.north_face.end,
+            node.south_face.start, node.south_face.end,
+            node.east_face.start, node.east_face.end,
+            node.west_face.start, node.west_face.end,
+        ] {
+            min_x = min_x.min(vertex.get_x());
+            max_x = max_x.max(vertex.get_x());
+            min_y = min_y.min(vertex.get_y());
+            max_y = max_y.max(vertex.get_y());
+        }
+    }
+
+    let padding = 0.1 * ((max_x - min_x).max(max_y - min_y));
+    min_x -= padding;
+    max_x += padding;
+    min_y -= padding;
+    max_y += padding;
+
+    let mut chart = ChartBuilder::on(&root)
+        .margin(5)
+        .x_label_area_size(30)
+        .y_label_area_size(30)
+        .build_cartesian_2d(min_x..max_x, min_y..max_y)?;
+
+    chart.configure_mesh().draw()?;
+    
+    for node in &nodes.nodes {
+        // Draw the four lines of the node
+        let lines = [
+            (node.north_face.start, node.north_face.end),
+            (node.south_face.start, node.south_face.end),
+            (node.east_face.start, node.east_face.end),
+            (node.west_face.start, node.west_face.end),
+        ];
+
+        for (start, end) in lines {
+            chart.draw_series(LineSeries::new(
+                vec![
+                    (start.get_x(), start.get_y()),
+                    (end.get_x(), end.get_y()),
+                ],
+                &BLACK,
+            ))?;
+        }
+
+        // Add node ID label at center
+        let center_x = (node.north_face.start.get_x() + node.south_face.end.get_x()) / 2.0;
+        let center_y = (node.north_face.start.get_y() + node.south_face.end.get_y()) / 2.0;
+        
+        chart.draw_series(PointSeries::of_element(
+            vec![(center_x, center_y)],
+            1,
+            &RED,
+            &|coord, _size, _style| {
+                Text::new(
+                    format!("N{}", node.id),
+                    coord,
+                    ("sans-serif", 15).into_font().color(&RED),
+                )
+            },
+        ))?;
+    }
+
+    root.present()?;
+    Ok(())
+} 
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -138,5 +218,16 @@ mod tests {
         let mut vertices = Vertices::new_3d(5, 5, 5);
         vertices.populate_uniform();
         plot_vertices_3d(&vertices, "3d-uniform.png").expect("didn't work");
+    }
+
+    #[test]
+    fn test_2d_node_plot() {
+        let mut vertices = Vertices::new_2d(3, 3);
+        vertices.populate_uniform();
+        
+        let mut nodes = Nodes::new_2d();
+        nodes.populate(&vertices).expect("Failed to populate nodes");
+        
+        plot_nodes_2d(&nodes, "2d-nodes.png").expect("Failed to plot nodes");
     }
 }
