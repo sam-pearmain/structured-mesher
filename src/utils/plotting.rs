@@ -123,9 +123,10 @@ pub fn plot_vertices_3d(vertices: &Vertices<Point3D>, filename: &str) -> Result<
     Ok(())
 }
 
-pub fn plot_nodes_2d(nodes: &Nodes<'_, Point2D>, filename: &str) -> Result<(), Box<dyn std::error::Error>> {
+pub fn plot_nodes_2d(nodes: &Nodes<'_, Point2D>, filename: &str, draw_numbers: bool) -> Result<(), Box<dyn std::error::Error>> {
     // create drawoing area
     let root = BitMapBackend::new(filename, (2560, 1440)).into_drawing_area();
+    root.fill(&WHITE)?;
 
     // find the bounds of all the vertices in all nodes
     let mut min_x = f64::MAX;
@@ -159,11 +160,13 @@ pub fn plot_nodes_2d(nodes: &Nodes<'_, Point2D>, filename: &str) -> Result<(), B
         .y_label_area_size(30)
         .build_cartesian_2d(min_x..max_x, min_y..max_y)?;
 
-    chart.configure_mesh().draw()?;
+    chart.configure_mesh()
+        .disable_mesh()
+        .draw()?;
     
     for node in &nodes.nodes {
-        // Draw the four lines of the node
-        let lines = [
+        // get a slice of the four lines comprising the current node
+        let lines: [(&Vertex<Point2D>, &Vertex<Point2D>); 4] = [
             (node.north_face.start, node.north_face.end),
             (node.south_face.start, node.south_face.end),
             (node.east_face.start, node.east_face.end),
@@ -171,6 +174,7 @@ pub fn plot_nodes_2d(nodes: &Nodes<'_, Point2D>, filename: &str) -> Result<(), B
         ];
 
         for (start, end) in lines {
+            // iterate over the slice of lines and draw them
             chart.draw_series(LineSeries::new(
                 vec![
                     (start.get_x(), start.get_y()),
@@ -180,22 +184,23 @@ pub fn plot_nodes_2d(nodes: &Nodes<'_, Point2D>, filename: &str) -> Result<(), B
             ))?;
         }
 
-        // Add node ID label at center
-        let center_x = (node.north_face.start.get_x() + node.south_face.end.get_x()) / 2.0;
-        let center_y = (node.north_face.start.get_y() + node.south_face.end.get_y()) / 2.0;
-        
-        chart.draw_series(PointSeries::of_element(
-            vec![(center_x, center_y)],
-            1,
-            &RED,
-            &|coord, _size, _style| {
-                Text::new(
-                    format!("N{}", node.id),
-                    coord,
-                    ("sans-serif", 15).into_font().color(&RED),
-                )
-            },
-        ))?;
+        if draw_numbers {
+            let center_x = (node.north_face.start.get_x() + node.south_face.end.get_x()) / 2.0;
+            let center_y = (node.north_face.start.get_y() + node.south_face.end.get_y()) / 2.0;
+            
+            chart.draw_series(PointSeries::of_element(
+                vec![(center_x, center_y)],
+                1,
+                &RED,
+                &|coord, _size, _style| {
+                    Text::new(
+                        format!("{}", node.id),
+                        coord,
+                        ("sans-serif", 15).into_font().color(&BLACK),
+                    )
+                },
+            ))?;
+        }
     }
 
     root.present()?;
@@ -222,12 +227,12 @@ mod tests {
 
     #[test]
     fn test_2d_node_plot() {
-        let mut vertices = Vertices::new_2d(10, 10);
+        let mut vertices = Vertices::new_2d(100, 100);
         vertices.populate_uniform();
         
         let mut nodes = Nodes::new_2d();
         nodes.populate(&vertices).expect("Failed to populate nodes");
         
-        plot_nodes_2d(&nodes, "2d-nodes.png").expect("Failed to plot nodes");
+        plot_nodes_2d(&nodes, "2d-nodes.png", false).expect("Failed to plot nodes");
     }
 }
