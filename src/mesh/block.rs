@@ -27,7 +27,7 @@ pub struct BlockBuilder {
 }
 
 impl BlockBuilder {
-    fn new(id: usize) -> Self {
+    fn new(_id: usize) -> Self {
         todo!()
     }
 }
