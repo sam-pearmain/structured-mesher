@@ -41,16 +41,11 @@ pub fn plot_vertices_2d(vertices: &Vertices<Point2D>, filename: &str) -> Result<
     for vertex in vertices.vertices() {
         chart.draw_series(PointSeries::of_element(
             vec![(vertex.get_x(), vertex.get_y())],
-            3,
+            1,
             &BLACK,
             &|coord, size, style| {
                 EmptyElement::at(coord)
                     + Circle::new((0, 0), size, style.filled())
-                    + Text::new(
-                        format!("{}", vertex.get_id()),
-                        (10, 0),
-                        ("sans-serif", 15),
-                    )
             },
         ))?;
     }
@@ -124,11 +119,7 @@ pub fn plot_vertices_3d(vertices: &Vertices<Point3D>, filename: &str) -> Result<
 }
 
 pub fn plot_nodes_2d(nodes: &Nodes<'_, Point2D>, filename: &str, draw_numbers: bool) -> Result<(), Box<dyn std::error::Error>> {
-    // create drawoing area
-    let root = BitMapBackend::new(filename, (2560, 1440)).into_drawing_area();
-    root.fill(&WHITE)?;
-
-    // find the bounds of all the vertices in all nodes
+    // find bounds first
     let mut min_x = f64::MAX;
     let mut max_x = f64::MIN;
     let mut min_y = f64::MAX;
@@ -148,22 +139,41 @@ pub fn plot_nodes_2d(nodes: &Nodes<'_, Point2D>, filename: &str, draw_numbers: b
         }
     }
 
-    let padding = 0.1 * ((max_x - min_x).max(max_y - min_y));
+    // calculate padding
+    let padding = 0.01 * ((max_x - min_x).max(max_y - min_y));
     min_x -= padding;
     max_x += padding;
     min_y -= padding;
     max_y += padding;
 
+    // calculate aspect ratio and image dimensions
+    let mesh_width = max_x - min_x;
+    let mesh_height = max_y - min_y;
+    let aspect_ratio = mesh_width / mesh_height;
+    
+    // base image size on width = 2560, adjust height to match aspect ratio
+    let width = 2560u32;
+    let height = (width as f64 / aspect_ratio) as u32;
+
+    // create drawing area with calculated dimensions
+    let root = BitMapBackend::new(filename, (width, height)).into_drawing_area();
+    root.fill(&WHITE)?;
+
+    // create chart with minimal decorations
     let mut chart = ChartBuilder::on(&root)
         .margin(5)
         .x_label_area_size(30)
         .y_label_area_size(30)
         .build_cartesian_2d(min_x..max_x, min_y..max_y)?;
 
+    // configure mesh with minimal decorations
     chart.configure_mesh()
         .disable_mesh()
+        .disable_x_mesh()
+        .disable_y_mesh()
+        .axis_style(ShapeStyle::from(&WHITE.mix(0.0))) // Hide axes
         .draw()?;
-    
+
     for node in &nodes.nodes {
         // get a slice of the four lines comprising the current node
         let lines: [(&Vertex<Point2D>, &Vertex<Point2D>); 4] = [
@@ -231,8 +241,8 @@ mod tests {
         vertices.populate_uniform();
         
         let mut nodes = Nodes::new_2d();
-        nodes.populate(&vertices).expect("Failed to populate nodes");
+        nodes.populate(&vertices).expect("failed to populate nodes");
         
-        plot_nodes_2d(&nodes, "2d-nodes.png", false).expect("Failed to plot nodes");
+        plot_nodes_2d(&nodes, "2d-nodes.png", false).expect("failed to plot nodes");
     }
 }

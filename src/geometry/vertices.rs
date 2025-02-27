@@ -96,6 +96,11 @@ impl Vertices<Point2D> {
             }
         }
     }
+
+    pub fn nx_ny(&self) -> (usize, usize) {
+        let (nx, ny, _) = self.dimensions.as_tuple();
+        (nx, ny)
+    }
 }
 
 // methods for groups of 3D vertices
