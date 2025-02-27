@@ -33,16 +33,18 @@ pub struct Nodes<'a, P: Point> {
 impl<'a, P: Point> Dimensioned for Nodes<'a, P> {
     fn is_2d(&self) -> bool {
         if self.is_empty() {
-            // return error
+            true  // Default to true for empty collections
+        } else {
+            self.nodes.first().unwrap().is_2d()
         }
-        self.nodes.first().unwrap().is_2d()
     }
 
     fn dimensions(&self) -> usize {
         if self.is_empty() {
-            // return error
+            2  // Default to 2D for empty collections
+        } else {
+            self.nodes.first().unwrap().dimensions()
         }
-        self.nodes.first().unwrap().dimensions()
     }
 }
 
@@ -52,7 +54,7 @@ impl<'a, P: Point> Nodes<'a, P> {
     }
 
     pub fn add_node(&mut self, node: Node<'a, P>) {
-        if node.dimensions() == self.dimensions() {
+        if self.is_empty() || node.dimensions() == self.dimensions() {
             self.nodes.push(node);
         }
     }

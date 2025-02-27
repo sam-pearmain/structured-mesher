@@ -222,7 +222,7 @@ mod tests {
 
     #[test]
     fn test_2d_node_plot() {
-        let mut vertices = Vertices::new_2d(3, 3);
+        let mut vertices = Vertices::new_2d(10, 10);
         vertices.populate_uniform();
         
         let mut nodes = Nodes::new_2d();
